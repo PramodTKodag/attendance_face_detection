@@ -7,6 +7,12 @@ from models import Camera
 
 import sys
 
+from datetime import datetime
+from pytz import timezone
+
+import mysql.connector
+connn = mysql.connector.connect(user='root',password='root',host='localhost',port='3306',database='attendence_system')
+
 
 class RegisterStudent(QDialog):
 	
@@ -19,13 +25,40 @@ class RegisterStudent(QDialog):
 
 	def accept(self):
 		name = self.textEdit.toPlainText()
+		print(str(name))
+
+		try:
+
+			format = "%Y-%m-%d %H:%M:%S"
+			# Current time in UTC
+			abcdef = datetime.now()
+			now_utc = datetime.now(timezone('UTC'))
+			now_asia = now_utc.astimezone(timezone('Asia/Kolkata'))
+			add_time = now_asia.strftime(format)
+
+			abcdef = datetime.strptime(add_time, format)
+
+
+
+			cur = connn.cursor()
+			cur.execute("INSERT into user_details(USERNAME, FIRST_NAME) values('%s', '%s', '%s')"%(name, name))
+			print("Inserted")
+
+			cur.close()
+			connn.commit()
+			
+		except Exception as r:
+			print(str(r))
+
 		if name:
 			self.main_window.take_photo_sample(name)
 			self.hide()
 			self.main_window.show()
+
 		else:
 			error_dialog = QErrorMessage(self)
 			error_dialog.showMessage('Please enter student name')
+
 
 	def reject(self):
 		camera = Camera(0)

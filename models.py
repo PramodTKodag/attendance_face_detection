@@ -12,7 +12,8 @@ from openpyxl import load_workbook
 from datetime import datetime
 from pytz import timezone
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QErrorMessage
+
 from PyQt5.QtWidgets import QMessageBox
 
 import PyQt5
@@ -123,16 +124,35 @@ class Camera:
                         add_time2 = now_asia.strftime(format)
 
                         cur = connn.cursor()
+                        cur3 = connn.cursor()
+                        cur4 = connn.cursor()
 
                         cur.execute("SELECT * from attendance where Name='%s' and date_today='%s'"%(labels[id_], add_time2))
                         res12 = cur.fetchall()
-                        
-                        if(len(res12)==0):
-                            cur.execute("INSERT into attendance (Name, date_today) values('%s', '%s')"%(labels[id_], add_time))
-                            
 
-                        else:
-                            print("attendance already punched")
+                        sql_query = "SELECT * from user_details where USERNAME='"+labels[id_]+"'"
+                        print(sql_query)
+
+                        cur4.execute(sql_query)
+                        es1223 = cur4.fetchone()
+                        user_id = es1223[0];
+                        
+                        try:
+                            if(len(res12)==0):
+                                cur3.execute("SELECT * from office_timing WHERE LATE_TIME>NOW()")
+                                res122 = cur3.fetchall()
+                                if(len(res122)==0):
+                                    cur.execute("INSERT into attendance (Name, USER_ID, LATE_STATUS, date_today) values('%s', '%s', '%s', '%s')"%(labels[id_], user_id, '1', add_time))
+                                    print("you are late")
+                                else:
+                                    cur.execute("INSERT into attendance (Name, USER_ID, LATE_STATUS, date_today) values('%s', '%s', '%s', '%s')"%(labels[id_], user_id, '0', add_time))
+                                    print("you are on time")
+
+
+                            else:
+                                print("attendance already punched")
+                        except Exception as ee:
+                            print(str(ee))
 
                         book = xlwt.Workbook("Attendance-sheet.xls")
                         sheet1 = book.add_sheet("Sheet 1")
