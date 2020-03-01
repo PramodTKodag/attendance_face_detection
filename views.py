@@ -32,8 +32,8 @@ class StartWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.button_register_student.clicked.connect(self.register_student)
-        self.button_train_data.clicked.connect(self.train_data)
-        self.button_recognise_student.clicked.connect(self.recognise_student)
+        # self.button_train_data.clicked.connect(self.train_data)
+        # self.button_recognise_student.clicked.connect(self.recognise_student)
 
     def take_photo_sample(self, student_name):
         self.camera.initialize()
